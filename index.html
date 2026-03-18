@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FLAMES Game 🔥</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- Global Styles ---------- */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #1e1e2f, #2c2c3f);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    border-radius: 25px;
+    padding: 40px 50px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
+h1 {
+    font-size: 32px;
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+input {
+    width: 80%;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    text-align: center;
+    font-size: 16px;
+}
+input::placeholder { color: #ccc; }
+
+button {
+    margin-top: 15px;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(135deg,#ff7e5f,#feb47b);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+button:hover {
+    transform: scale(1.05);
+}
+
+/* ---------- Result Box ---------- */
+#result {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 25px;
+    min-height: 40px;
+}
+
+/* ---------- FLAMES Wheel ---------- */
+#wheel {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 20px auto;
+    border-radius: 50%;
+    border: 3px dashed rgba(255,255,255,0.3);
+}
+
+.wheel-char {
+    position: absolute;
+    font-weight: bold;
+    font-size: 22px;
+    transition: all 0.2s ease;
+}
+
+/* ---------- Heart/Emoji explosion ---------- */
+.emoji {
+    position: absolute;
+    font-size: 24px;
+    animation: floatup 1.5s forwards;
+}
+@keyframes floatup {
+    0% { transform: translateY(0) scale(1); opacity:1; }
+    100% { transform: translateY(-250px) scale(1.5); opacity:0; }
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🔥 FLAMES Calculator</h1>
+    <input type="text" id="name1" placeholder="Enter Name 1"><br>
+    <input type="text" id="name2" placeholder="Enter Name 2"><br>
+    <button onclick="startFlames()">💖 Check</button>
+
+    <div id="wheel"></div>
+    <div id="result"></div>
+</div>
+
+<script>
+/* ---------- FLAMES Logic ---------- */
+function flamesLogic(name1, name2){
+    let charlist1 = name1.toLowerCase().replace(/ /g,"").split("");
+    let charlist2 = name2.toLowerCase().replace(/ /g,"").split("");
+
+    for(let i=0;i<charlist1.length;i++){
+        for(let j=0;j<charlist2.length;j++){
+            if(charlist1[i]===charlist2[j]){
+                charlist1.splice(i,1);
+                charlist2.splice(j,1);
+                i--; break;
+            }
+        }
+    }
+
+    let total = charlist1.length + charlist2.length;
+    let flamesArr = ['F','L','A','M','E','S'];
+    let i=0;
+
+    while(flamesArr.length>1){
+        i = (i + total -1) % flamesArr.length;
+        flamesArr.splice(i,1);
+    }
+
+    const map = {
+        F:"Friends 🤝",
+        L:"Love ❤️",
+        A:"Affection 😊",
+        M:"Marriage 💍",
+        E:"Enemies 😡",
+        S:"Siblings 👨‍👩‍👧"
+    };
+    return map[flamesArr[0]];
+}
+
+function spinWheelHighlight(finalLetter){
+    const wheel = document.getElementById("wheel");
+    wheel.innerHTML = "";
+    const letters = ['F','L','A','M','E','S'];
+    const radius = 90;
+
+    letters.forEach((ch,index)=>{
+        const angle = (index/letters.length) * 2 * Math.PI;
+        const x = 110 + radius*Math.cos(angle) - 12;
+        const y = 110 + radius*Math.sin(angle) - 12;
+
+        const div = document.createElement("div");
+        div.classList.add("wheel-char");
+        div.style.left = x + "px";
+        div.style.top = y + "px";
+        div.innerText = ch;
+
+        if(ch === finalLetter[0]) {
+            div.style.color = "#ffeb3b";
+            div.style.fontSize = "28px";
+        }
+        wheel.appendChild(div);
+    });
+}
+
+function explodeEmojis(result){
+    const emojisMap = {
+        "Love ❤️":["❤️","💕","💖"],
+        "Friends 🤝":["🤝","😊","😎"],
+        "Affection 😊":["😊","🌸","💛"],
+        "Marriage 💍":["💍","💖","🎉"],
+        "Enemies 😡":["😡","💀","👿"],
+        "Siblings 👨‍👩‍👧":["👨‍👩‍👧","👶","👦"]
+    };
+
+    const emojis = emojisMap[result] || ["✨","🎉"];
+
+    for(let i=0;i<30;i++){
+        const e = document.createElement("div");
+        e.classList.add("emoji");
+        e.innerText = emojis[Math.floor(Math.random()*emojis.length)];
+        e.style.left = Math.random() * window.innerWidth + "px";
+        e.style.top = Math.random() * window.innerHeight + "px";
+        e.style.fontSize = (14 + Math.random()*24) + "px";
+        document.body.appendChild(e);
+        setTimeout(()=>{ e.remove(); }, 2000);
+    }
+}
+
+/* ---------- Start FLAMES ---------- */
+function renderWheelInitial() {
+    const wheel = document.getElementById("wheel");
+    wheel.innerHTML = "";
+    const letters = ['F','L','A','M','E','S'];
+    const radius = 90;
+
+    letters.forEach((ch, index) => {
+        const angle = (index/letters.length) * 2 * Math.PI;
+        const x = 110 + radius*Math.cos(angle) - 12;
+        const y = 110 + radius*Math.sin(angle) - 12;
+        const div = document.createElement("div");
+        div.classList.add("wheel-char");
+        div.style.left = x + "px";
+        div.style.top = y + "px";
+        div.innerText = ch;
+        wheel.appendChild(div);
+    });
+}
+function startFlames(){
+    const name1 = document.getElementById("name1").value;
+    const name2 = document.getElementById("name2").value;
+    const resultDiv = document.getElementById("result");
+    const wheel = document.getElementById("wheel");
+
+    if(!name1 || !name2){
+        alert("Enter both names!");
+        return;
+    }
+
+    resultDiv.innerHTML = "Spinning the FLAMES wheel... 🔥";
+    wheel.innerHTML = "";
+
+    const letters = ['F','L','A','M','E','S'];
+    let index = 0;
+    const spinInterval = setInterval(()=>{
+        wheel.innerHTML = "";
+        letters.forEach((ch,i)=>{
+            const angle = (i/letters.length)*2*Math.PI;
+            const radius = 90;
+            const x = 110 + radius*Math.cos(angle) - 12;
+            const y = 110 + radius*Math.sin(angle) - 12;
+            const div = document.createElement("div");
+            div.classList.add("wheel-char");
+            div.style.left = x + "px";
+            div.style.top = y + "px";
+            div.innerText = ch;
+            if(i===index) div.style.color="#ffeb3b";
+            wheel.appendChild(div);
+        });
+        index = (index + 1) % letters.length;
+    },200);
+
+    setTimeout(()=>{
+        clearInterval(spinInterval);
+        const result = flamesLogic(name1,name2);
+        resultDiv.innerHTML = `Result: ${result}`;
+        spinWheelHighlight(result);
+        explodeEmojis(result);
+    },2500);
+}
+window.onload = renderWheelInitial;
+</script>
+</body>
+</html>
